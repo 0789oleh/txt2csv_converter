@@ -1,0 +1,5 @@
+dist/
+build/
+installer_output/
+venv/
+__pycache__/
