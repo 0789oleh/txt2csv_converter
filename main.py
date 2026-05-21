@@ -4,6 +4,8 @@ from pathlib import Path
 import typer
 from typing import Optional
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
+from  prenormalization import process_text_lines, normalize_numeric_value
+
 
 app = typer.Typer(help="Утилита для конвертации TXT (TSV) в CSV")
 __version__ = "0.1.0"
@@ -64,27 +66,31 @@ def convert(
         task = progress.add_task(description="Конвертация...", total=file_size)
         
         try:
+            # 1. Чтение данных
             with open(input_file, 'r', encoding='utf-8') as in_file:
-                # Читаем строки, убираем пустые
-                lines = []
-                for line in in_file:
-                    clean_line = line.strip()
-                    if not clean_line:
-                        continue
-                
-                    # split() без параметров разделит и по табу, и по 10 пробелам сразу
-                    columns = clean_line.split() 
-                    lines.append(columns)
+                raw_lines = in_file.readlines()
             
-                with open(output_file, 'w', newline='', encoding='utf-8') as out_file:
-                    writer = csv.writer(out_file)
-                    writer.writerows(lines)
+            # 2. Обработка через изолированный модуль
+            processed_data = process_text_lines(raw_lines)
+            print(processed_data)
         
-            typer.secho(f"Успешно обработано строк: {len(lines)}", fg=typer.colors.GREEN)
+            # 3. Режим превью
+            # if preview:
+            #     typer.secho("\n✨ [Preview] Первые 5 строк:", fg=typer.colors.CYAN, bold=True)
+            #     for row in processed_data[:5]:
+            #         typer.echo(" | ".join(row))
+            #     raise typer.Exit()
             
-        except Exception as e:
-            typer.secho(f"❌ Ошибка: {e}", fg=typer.colors.RED, err=True)
-            raise typer.Exit(1)
+            # 4. Запись результата
+            with open(output_file, 'w', newline='', encoding='utf-8') as out_file:
+                writer = csv.writer(out_file)
+                writer.writerows(processed_data)
+            
+            typer.secho(f"Успешно обработано строк: {len(processed_data)}", fg=typer.colors.GREEN)
+        
+        except FileNotFoundError:
+            typer.secho(f"❌ Ошибка: Файл '{input_file}' не найден.", fg=typer.colors.RED, err=True)
+            raise typer.Exit(code=1)
     
 
 if __name__ == "__main__":
