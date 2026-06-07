@@ -14,13 +14,17 @@ def normalize_numeric_value(val: str) -> str:
     return re.sub(r'(?<=\d),(?=\d)', '.', val)
 
 
-def process_text_lines(raw_lines: List[str]) -> List[List[str]]:
+def process_text_lines(raw_lines: List[str], limit: int = None) -> List[List[str]]:
     """
-    Основной процессор: фильтрует пустые строки, разбивает по пробелам
-    и нормализует числовые значения.
+    Парсит строки, убирает пустые и нормализует числа.
+    Если передан limit, обрабатывает только указанное количество строк.
     """
     processed_data = []
-    for line in raw_lines:
+    
+    # Берем срез, если лимит задан
+    lines_to_process = raw_lines[:limit] if limit else raw_lines
+    
+    for line in lines_to_process:
         clean_line = line.strip()
         if not clean_line:
             continue
