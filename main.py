@@ -8,7 +8,7 @@ from  utils import process_text_lines, normalize_numeric_value
 
 
 app = typer.Typer(help="Утилита для конвертации TXT (TSV) в CSV")
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 def version_callback(value: bool):
