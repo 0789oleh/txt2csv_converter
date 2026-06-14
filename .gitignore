@@ -3,3 +3,5 @@ build/
 installer_output/
 venv/
 __pycache__/
+shoots.txt
+shoots.csv

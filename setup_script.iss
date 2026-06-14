@@ -1,13 +1,13 @@
 [Setup]
 AppId={{C789-Ваш-Уникальный-GUID-Тут}}
 AppName=Text 2 CSV Converter
-AppVersion=0.1.0-alpha
-AppPublisher=Helge
+AppVersion=0.2.0-alpha
+AppPublisher=Oleh0789
 DefaultDirName={autopf}\Text2CSVConverter
 DefaultGroupName=Text 2 CSV Converter
 ; Куда сохранить готовый файл установщика
 OutputDir=.\installer_output
-OutputBaseFilename=text2csv_setup_v0.1.0-alpha
+OutputBaseFilename=text2csv_setup_v0.2.0-alpha
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern

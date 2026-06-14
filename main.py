@@ -4,9 +4,11 @@ from pathlib import Path
 import typer
 from typing import Optional
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
+from  utils import process_text_lines, normalize_numeric_value
+
 
 app = typer.Typer(help="Утилита для конвертации TXT (TSV) в CSV")
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 def version_callback(value: bool):
@@ -45,7 +47,19 @@ def convert(
         callback=version_callback,
         is_eager=True,  # Выполнить немедленно, игнорируя другие ошибки аргументов
         help="Показать версию программы и выйти"
-    )
+    ),
+    preview: Optional[bool] = typer.Option(
+        None, 
+        "--preview",
+        "-p",
+        help="Режим превью"
+    ), 
+    encoding: Optional[str] = typer.Option(
+        None, 
+        "--encoding",
+        "-e", 
+        help="Encoding (default uff-8)"
+    )   
 ):
     """Конвертирует TXT в CSV с индикацией прогресса."""
     
@@ -62,29 +76,46 @@ def convert(
     ) as progress:
         
         task = progress.add_task(description="Конвертация...", total=file_size)
-        
+        if not encoding:
+            encoding='utf-8'
+
         try:
-            with open(input_file, 'r', encoding='utf-8') as in_file:
-                # Читаем строки, убираем пустые
-                lines = []
-                for line in in_file:
-                    clean_line = line.strip()
-                    if not clean_line:
-                        continue
+            # 1. Чтение данных
+            with open(input_file, 'r', encoding=encoding) as in_file:
+                raw_lines = in_file.readlines()
+            
+            # 2. Обработка через изолированный модуль
+            processed_data = process_text_lines(raw_lines)
+            
+            # 3. Режим превью
+            if preview:
+                progress.stop()
+                preview_data = process_text_lines(raw_lines, limit=5)
+                typer.secho("\n✨ [Preview] Первые 5 строк:", fg=typer.colors.CYAN, bold=True)
+                for row in preview_data:
+                    typer.echo(" | ".join(row))
+                typer.echo('')
                 
-                    # split() без параметров разделит и по табу, и по 10 пробелам сразу
-                    columns = clean_line.split() 
-                    lines.append(columns)
+                confirm = typer.confirm("Данные распознаны корректно? Записать в итоговый CSV?")
+                
+                # Если пользователь ввел не 'y' и не 'yes' (или просто нажал Enter)
+                if not confirm:
+                    typer.secho("❌ Конвертация отменена пользователем. Файл НЕ сохранен.", fg=typer.colors.YELLOW)
+                    raise typer.Exit()
             
-                with open(output_file, 'w', newline='', encoding='utf-8') as out_file:
-                    writer = csv.writer(out_file)
-                    writer.writerows(lines)
+                typer.secho("🚀 Продолжаем запись...", fg=typer.colors.GREEN)
+
+            
+            # 4. Запись результата
+            with open(output_file, 'w', newline='', encoding='utf-8') as out_file:
+                writer = csv.writer(out_file)
+                writer.writerows(processed_data)
+            
+            typer.secho(f"Успешно обработано строк: {len(processed_data)}", fg=typer.colors.GREEN)
         
-            typer.secho(f"Успешно обработано строк: {len(lines)}", fg=typer.colors.GREEN)
-            
-        except Exception as e:
-            typer.secho(f"❌ Ошибка: {e}", fg=typer.colors.RED, err=True)
-            raise typer.Exit(1)
+        except FileNotFoundError:
+            typer.echo(f"❌ Ошибка: Файл '{input_file}' не найден.", fg=typer.colors.RED, err=True)
+            raise typer.Exit(code=1)
     
 
 if __name__ == "__main__":

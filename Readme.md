@@ -19,7 +19,7 @@ Download `text2csv_setup_v0.1.0-alpha.exe` from the releases page and follow the
 ### Portable
 Just download `txt2csv_converter.exe` and run it in terminal.
 
-> **Note:** Для удобного вызова из любой папки добавьте путь к установленному приложению в переменную окружения `PATH`.
+> **Note:** To easily run the application from any folder, add the path to the installed application to the `PATH` environment variable.
 
 ## 🚀 Usage
 
@@ -31,4 +31,4 @@ text2csv_converter --help
 text2csv_converter data.txt result.csv
 
 # Conversion with quote
-text2csv_converter data.txt result.csv --quote "'"
+text2csv_converter data.txt result.csv --quote "'"```
