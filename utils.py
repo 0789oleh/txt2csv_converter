@@ -1,5 +1,6 @@
 import re
 from typing import List
+from errors import ValidationError
 
 
 def normalize_numeric_value(val: str) -> str:
@@ -19,6 +20,9 @@ def process_text_lines(raw_lines: List[str], limit: int = None) -> List[List[str
     Парсит строки, убирает пустые и нормализует числа.
     Если передан limit, обрабатывает только указанное количество строк.
     """
+    if not raw_lines:
+        raise ValidationError("Нечего конвертировать. Файл пуст")
+
     processed_data = []
     
     # Берем срез, если лимит задан

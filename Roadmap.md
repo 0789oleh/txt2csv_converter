@@ -19,9 +19,16 @@ This document outlines plans for the utility's development, improvements to its 
 - [x] **Smart `--preview`:** displays the first 5 rows of normalized data as a formatted `Rich.table` directly in the console.
 - [x] Encoding option to support legacy encodings (cp1251) with informative UnicodeDecodeError handling.
 
-### 📐 Quality assurance and automation (Infrastructure)
+## 🟠 v0.3.0-beta — Smart Parsing
+*Main focus: automating routine tasks and detecting data structures.*
+
+- [ ] **"Broken Rows" Validator:** Identifies rows whose length (number of columns) differs from that of the first row of data, displaying a warning and the row number.
+- [ ] **Детектор заголовков (Header Detector):** умный анализ первой строки файла. Если в ней текст, а дальше цифры — строка автоматически помечается как шапка таблицы.
+- [ ] Опция `--skip N` для пропуска первых N строк мета-информации прибора (логов, системных заголовков).
+
+## 📐 Quality assurance and automation (Infrastructure)
 - [ ] Module coverage with unit tests based on `pytest` (testing the normalization of ordinary numbers and exponential forms, and the preservation of text strings).
 - [ ] Build automation via .bat file.
 
-### &#128302; In Foreseen Future
-- [ ] Multiply file processing via 
+## &#128302; In Foreseen Future
+- [ ] Multiply file processing via ProcessPoolExecutor
