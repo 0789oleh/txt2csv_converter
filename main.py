@@ -4,7 +4,8 @@ from pathlib import Path
 import typer
 from typing import Optional
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
-from  utils import process_text_lines, normalize_numeric_value
+from errors import ParsingError, ValidationError
+from  utils import process_text_lines
 
 
 app = typer.Typer(help="Утилита для конвертации TXT (TSV) в CSV")
@@ -75,7 +76,7 @@ def convert(
         transient=True, # Бар исчезнет после завершения работы
     ) as progress:
         
-        task = progress.add_task(description="Конвертация...", total=file_size)
+        progress.add_task(description="Конвертация...", total=file_size)
         if not encoding:
             encoding='utf-8'
 
@@ -116,6 +117,23 @@ def convert(
         except FileNotFoundError:
             typer.echo(f"❌ Ошибка: Файл '{input_file}' не найден.", fg=typer.colors.RED, err=True)
             raise typer.Exit(code=1)
+        
+        except ValidationError as e:
+            progress.stop()
+            typer.secho(
+                f"❌ Ошибка валидации:\n {e}",
+                fg=typer.colors.RED,
+                err=True
+            )
+            raise typer.Exit(code=3)
+
+        except ParsingError as e:
+            typer.secho(
+                f"❌ Ошибка разбора: {e}",
+                fg=typer.colors.RED,
+                err=True
+            )
+            raise typer.Exit(code=4)
     
 
 if __name__ == "__main__":
